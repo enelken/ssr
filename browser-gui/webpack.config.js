@@ -3,14 +3,13 @@ const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const DIST_PATH = '../data/websocket_resources';
+const DIST_PATH = 'dist';
 
 module.exports = {
   entry: './src/index.js',
   output: {
     filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, DIST_PATH),
-    // TODO: is this working?
     sourceMapFilename: 'sourcemaps/[file].map',
   },
   target: 'web',
@@ -37,8 +36,7 @@ module.exports = {
     },
   },
   plugins: [
-    // TODO: is this working?
-    new CleanWebpackPlugin(['dist']),
+    new CleanWebpackPlugin([DIST_PATH]),
     new HtmlWebpackPlugin({
       title: 'SoundScape Renderer'
     }),
@@ -57,8 +55,7 @@ module.exports = {
       //chunks: 'initial',
     }
   },
-  // TODO:
-  //performance: {
-  //  hints: false  // three.js is always too large
-  //}
+  performance: {
+    hints: false  // three.js is always too large
+  }
 };

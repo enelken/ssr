@@ -47,33 +47,33 @@ function hemisphereLight() {
 }
 
 
-function shipGeometry() {
+function kiteGeometry() {
   // object is pointing in positive x direction
   // positive z is top!
-  var ship = new THREE.Geometry();
-  ship.vertices.push( new THREE.Vector3( .8, 0, 0 ) );  // 0: front
-  ship.vertices.push( new THREE.Vector3( 0, .4, 0 ) );  // 1: left
-  ship.vertices.push( new THREE.Vector3( -.2, 0, 0 ) );  // 2: back
-  ship.vertices.push( new THREE.Vector3( 0, -.4, 0 ) );  // 3: right
-  ship.vertices.push( new THREE.Vector3( 0, 0, .2 ) );  // 4: top
-  ship.vertices.push( new THREE.Vector3( 0, 0, -.1 ) );  // 5: bottom
+  var kite = new THREE.Geometry();
+  kite.vertices.push( new THREE.Vector3( .8, 0, 0 ) );  // 0: front
+  kite.vertices.push( new THREE.Vector3( 0, .4, 0 ) );  // 1: left
+  kite.vertices.push( new THREE.Vector3( -.2, 0, 0 ) );  // 2: back
+  kite.vertices.push( new THREE.Vector3( 0, -.4, 0 ) );  // 3: right
+  kite.vertices.push( new THREE.Vector3( 0, 0, .2 ) );  // 4: top
+  kite.vertices.push( new THREE.Vector3( 0, 0, -.1 ) );  // 5: bottom
 
-  ship.faces.push( new THREE.Face3( 0, 1, 4 ) );
-  ship.faces.push( new THREE.Face3( 1, 2, 4 ) );
-  ship.faces.push( new THREE.Face3( 2, 3, 4 ) );
-  ship.faces.push( new THREE.Face3( 3, 0, 4 ) );
+  kite.faces.push( new THREE.Face3( 0, 1, 4 ) );
+  kite.faces.push( new THREE.Face3( 1, 2, 4 ) );
+  kite.faces.push( new THREE.Face3( 2, 3, 4 ) );
+  kite.faces.push( new THREE.Face3( 3, 0, 4 ) );
 
-  ship.faces.push( new THREE.Face3( 1, 0, 5 ) );
-  ship.faces.push( new THREE.Face3( 2, 1, 5 ) );
-  ship.faces.push( new THREE.Face3( 3, 2, 5 ) );
-  ship.faces.push( new THREE.Face3( 0, 3, 5 ) );
+  kite.faces.push( new THREE.Face3( 1, 0, 5 ) );
+  kite.faces.push( new THREE.Face3( 2, 1, 5 ) );
+  kite.faces.push( new THREE.Face3( 3, 2, 5 ) );
+  kite.faces.push( new THREE.Face3( 0, 3, 5 ) );
 
-  ship.computeFaceNormals();
+  kite.computeFaceNormals();
 
   // object is pointing in positive y direction
-  ship.rotateZ( Math.PI / 2 );
+  kite.rotateZ( Math.PI / 2 );
 
-  return ship;
+  return kite;
 }
 
 
@@ -87,22 +87,6 @@ export class SceneViewer {
     this.dom = dom;
 
     // TODO: private attributes?
-
-    let info = document.createElement( 'div' );
-    info.id = 'info';
-    //info.style.color = '#fff';
-
-    let overlay_text = document.createElement( 'span' );
-    overlay_text.className = 'Text';
-    overlay_text.style.cursor = 'default';
-    overlay_text.style.display = 'inline-block';
-    overlay_text.style.verticalAlign = 'middle';
-    overlay_text.style.marginLeft = '6px';
-    overlay_text.textContent = 'Some Text';
-
-    info.appendChild( overlay_text );
-
-    this.dom.appendChild( info );
 
     //this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
     //this.camera = new THREE.PerspectiveCamera( 50, 1, 0.01, 1000 );
@@ -195,11 +179,11 @@ export class SceneViewer {
   }
 
   createSource() {
-    //let shipMaterial = new THREE.MeshBasicMaterial( { color: 0x2685AA } );
-    let shipMaterial = new THREE.MeshPhongMaterial( { color: 0xBC7349 } );
-    //let shipMaterial = new THREE.MeshLambertMaterial( { color: 0xBC7349 } );
+    //let kiteMaterial = new THREE.MeshBasicMaterial( { color: 0x2685AA } );
+    let kiteMaterial = new THREE.MeshPhongMaterial( { color: 0xBC7349 } );
+    //let kiteMaterial = new THREE.MeshLambertMaterial( { color: 0xBC7349 } );
 
-    let mesh = new THREE.Mesh( shipGeometry(), shipMaterial );
+    let mesh = new THREE.Mesh( kiteGeometry(), kiteMaterial );
     this.scene.add( mesh );
     return mesh;
   }
@@ -222,7 +206,7 @@ export class SceneViewer {
     let rot = data.rot;
     // TODO: check if length == 4
     if (rot) {
-      let quat = new THREE.Quaternion(rot[0], rot[1], rot[2], rot[3]);
+      let quat = new THREE.Quaternion(...rot);
       // TODO: quat.normalize()?
       source.setRotationFromQuaternion(quat);
     }
@@ -267,6 +251,7 @@ export class SceneViewer {
   }
 
   handle_message(msg) {
+    msg = JSON.parse(msg);
     if (!(msg instanceof Array)) {
       throw Error(`Invalid message: ${msg}`);
     }
@@ -284,7 +269,13 @@ export class SceneViewer {
       }
 
       switch (command) {
-        case 'new':
+        case 'state':
+          for (let attr in data) {
+            // TODO: implement!
+            console.log(attr + ": " + data);
+          }
+          break;
+        case 'new-src':
           // TODO: error if no keys available?
           for (let source_id in data) {
             // TODO: 'reference' is not allowed as source ID
@@ -296,17 +287,16 @@ export class SceneViewer {
             this.updateSource(source_id, data[source_id]);
           }
           break;
-        case 'modify':
+        case 'mod-src':
           // TODO: error if no keys available?
           for (let source_id in data) {
-            // TODO: handle reference?
             if (!this.sources.hasOwnProperty(source_id)) {
               throw Error(`Source "${source_id}" does not exist`);
             }
             this.updateSource(source_id, data[source_id]);
           }
           break;
-        case 'delete':
+        case 'del-src':
           // TODO: check if "data" is Array?
           data.forEach(item => this.removeSource(item));
           break;

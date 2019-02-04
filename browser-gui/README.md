@@ -14,9 +14,22 @@ Install everything else:
 
     yarn install
 
+To build the hole shebang, use:
 
+    yarn run build
 
+During development, it is very handy if any change to the source files is
+detected and the generated files are updated automatically.
+You can achieve that by running:
 
+    yarn run serve
+
+This will open your favorite web browser and show the freshly built SSR GUI.
+And it will automatically update the browser whenever changes are made to any
+source file.
+If you want to use a different browser, just pass it along, e.g.:
+
+    yarn run serve chromium
 
 Maintenance
 -----------
@@ -41,6 +54,7 @@ The only thing we needed to get started, are the settings for [webpack].
 Speaking of which, [webpack] was installed with:
 
     yarn add --dev webpack webpack-cli webpack-dev-server
+    yarn add --dev imports-loader style-loader css-loader
 
 And we needed [three.js] for all the fancy 3D stuff:
 
@@ -49,8 +63,10 @@ And we needed [three.js] for all the fancy 3D stuff:
 [webpack]: https://webpack.js.org/
 [three.js]: https://threejs.org/
 
+Several other packages are needed, `yarn run build` will mention those.
+
 Whenever needed, packages can be upgraded with `yarn upgrade`,
-added with `yarn add` (using `-dev` for packages only needed for development)
+added with `yarn add` (using `--dev` for packages only needed for development)
 and removed with `yarn remove`.
 
 Note: The file `yarn.lock` is supposed to be checked into version control.
