@@ -38,4 +38,19 @@ therefore we have used `"private": true` and we didn't have to specify most of
 the fields a normal `npm` package has.
 The only thing we needed to get started, are the settings for [webpack].
 
+Speaking of which, [webpack] was installed with:
+
+    yarn add --dev webpack webpack-cli webpack-dev-server
+
+And we needed [three.js] for all the fancy 3D stuff:
+
+    yarn add three
+
 [webpack]: https://webpack.js.org/
+[three.js]: https://threejs.org/
+
+Whenever needed, packages can be upgraded with `yarn upgrade`,
+added with `yarn add` (using `-dev` for packages only needed for development)
+and removed with `yarn remove`.
+
+Note: The file `yarn.lock` is supposed to be checked into version control.
