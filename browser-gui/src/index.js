@@ -25,7 +25,7 @@ SOCKET = new WebSocket("ws://" + DEFAULT_HOST + ":" + DEFAULT_PORT, SUBPROTOCOL)
 SOCKET.onopen = function()
 {
   console.log("WebSocket connected to " + SOCKET.url + ", subprotocol: " + SOCKET.protocol);
-  SOCKET.send(JSON.stringify(["subscribe", ["scene"]]));
+  SOCKET.send(JSON.stringify(["subscribe", ["scene", "renderer"]]));
 };
 
 SOCKET.onmessage = function(msg)

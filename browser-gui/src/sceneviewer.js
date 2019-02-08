@@ -175,7 +175,18 @@ export class SceneViewer {
     this.scene.add( new THREE.AmbientLight( 0x505050 ) );
 
     this.sources = {};
-    this.reference = null;  // TODO
+    // TODO: binaural vs. loudspeakers?
+    this.reference = this.createReference();
+  }
+
+  createReference() {
+    let reference = new THREE.Group();
+    let material = new THREE.MeshPhongMaterial( { color: 0x2685AA } );
+    let mesh = new THREE.Mesh( kiteGeometry(), material );
+    mesh.scale.set(0.6, 0.6, 0.6);
+    reference.add(mesh);
+    this.scene.add(reference);
+    return reference;
   }
 
   createSource() {
@@ -188,7 +199,6 @@ export class SceneViewer {
     return mesh;
   }
 
-  // TODO: change to updateObject() to be able to handle reference, too?
   updateSource(source_id, data) {
     // TODO: error if not available?
     let source = this.sources[source_id];
@@ -206,9 +216,7 @@ export class SceneViewer {
     let rot = data.rot;
     // TODO: check if length == 4
     if (rot) {
-      let quat = new THREE.Quaternion(...rot);
-      // TODO: quat.normalize()?
-      source.setRotationFromQuaternion(quat);
+      source.quaternion.set(...rot);
     }
     let active = data.active;
     if (active !== undefined) {
@@ -224,6 +232,24 @@ export class SceneViewer {
     }
     this.scene.remove(source);
     delete this.sources[source_id];
+  }
+
+  createLoudspeakers(loudspeakers) {
+    // TODO: check if loudspeakers is array
+    // TODO: make sure no loudspeakers exist yet
+
+    let material = new THREE.MeshPhongMaterial( { color: 0x2685AA } );
+    for (let ls of loudspeakers) {
+      // TODO: check if ls is object?
+
+      let mesh = new THREE.Mesh( kiteGeometry(), material );
+      mesh.scale.set(0.3, 0.3, 0.3);
+      mesh.position.set(...ls.pos);
+      mesh.quaternion.set(...ls.rot);
+      this.reference.add(mesh);
+      //this.sceneHelpers.add( mesh );
+    }
+
   }
 
   onWindowResize( event ) {
@@ -271,14 +297,26 @@ export class SceneViewer {
       switch (command) {
         case 'state':
           for (let attr in data) {
-            // TODO: implement!
-            console.log(attr + ": " + data);
+            let value = data[attr];
+            switch (attr) {
+              case 'loudspeakers':
+                this.createLoudspeakers(value);
+                break;
+              case 'ref-pos':
+                this.reference.position.set(...value);
+                break;
+              case 'ref-rot':
+                this.reference.quaternion.set(...value);
+                break;
+              default:
+                // TODO: implement the rest!
+                console.log(attr + ': ' + data);
+            }
           }
           break;
         case 'new-src':
           // TODO: error if no keys available?
           for (let source_id in data) {
-            // TODO: 'reference' is not allowed as source ID
             if (this.sources.hasOwnProperty(source_id)) {
               throw Error(`Source "${source_id}" already exists`);
             }
